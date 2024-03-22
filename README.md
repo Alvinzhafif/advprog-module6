@@ -28,8 +28,8 @@ let status_line = "HTTP/1.1 404 NOT FOUND";
 `
 Here, for processing the response I used a few if statements. If the request process the root or `/` of the server hence it will direct to the `hello.html`. If they are not accessing the root then they will be directed to a different html namely `404.html`. However, there is a few repetition of if and elses here as they are responsible for reading and writing contents onto the stream, hence why we need to refactor the code to make it more concise.
 #### After Refactoring
-`
-let (status_line, filename) = if request_line == "GET / HTTP/1.1" {
+
+`let (status_line, filename) = if request_line == "GET / HTTP/1.1" {
         ("HTTP/1.1 200 OK", "hello.html")
     } else {
         ("HTTP/1.1 404 NOT FOUND", "404.html")
@@ -41,8 +41,8 @@ let (status_line, filename) = if request_line == "GET / HTTP/1.1" {
     let response =
         format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
 
-    stream.write_all(response.as_bytes()).unwrap();
-`
+    stream.write_all(response.as_bytes()).unwrap();`
+
 The code that was previously duplicated has been moved outside of the if and else blocks and utilizes the use of the status_line and filename variables. This makes the differences between the two circumstances easier to understand and suggests that we only need to change one place in the code to change how the file reading and response writing behave. 
 
 ## Simulation of slow request
@@ -50,16 +50,16 @@ The difference between using `/sleep` and `/` normally, is that using `/sleep` s
 
 ##  Multithreaded server using Threadpool
 
-1. `struct ThreadPool`: This struct represents a thread pool.
+1. `struct ThreadPool`, This struct represents a thread pool.
 *  `workers: Vec<Worker>` It holds a vector of workers, each responsible for executing tasks.
 *  `sender: Option<mpsc::Sender<Job>>` It stores an optional sender for the channel used to communicate tasks to workers.
 2. `Job Type Alias`, This is a type alias for the type of tasks that can be sent to the workers. It represents a closure that takes no arguments and returns nothing (FnOnce()), can be sent between threads (Send), and lives for the 'static lifetime.
 
 3. `impl ThreadPool`
 *  `new(size: usize) -> ThreadPool`, This is a constructor for creating a new ThreadPool with a specified number of workers (size).
-** It initializes a channel `(mpsc::channel())` to communicate tasks between the main thread and workers.
-** It creates a shared ownership (Arc) of a mutex-protected receiver to distribute among workers.
-** It initializes size number of workers, each with a unique ID and a cloned receiver.
+ * It initializes a channel `(mpsc::channel())` to communicate tasks between the main thread and workers.
+ * It creates a shared ownership (Arc) of a mutex-protected receiver to distribute among workers.
+ * It initializes size number of workers, each with a unique ID and a cloned receiver.
 *  `execute<F>(&self, f: F) where F: FnOnce() + Send + 'static`, This method enqueues a task (FnOnce()) into the thread pool for execution.
 It wraps the task into a box and sends it through the channel to be picked up by an available worker.
 
@@ -74,11 +74,11 @@ It wraps the task into a box and sends it through the channel to be picked up by
 
 * It holds an ID and an optional handle to the spawned thread.
 
-* impl Worker:
+* impl `Worker`:
 
-** new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker: This is a constructor for creating a new Worker.
-** It spawns a new thread that loops indefinitely, receiving and executing tasks from the shared receiver.
-** If an error occurs during receiving (indicating the sender has been dropped), it breaks out of the loop, terminating the worker.
+ * new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker: This is a constructor for creating a new Worker.
+ * It spawns a new thread that loops indefinitely, receiving and executing tasks from the shared receiver.
+ * If an error occurs during receiving (indicating the sender has been dropped), it breaks out of the loop, terminating the worker.
 
 
 
