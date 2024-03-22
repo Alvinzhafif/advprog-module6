@@ -17,7 +17,7 @@ In a nutshell this function will serve as the server for handling client request
 So int the code the process of reading the request is furtherly splitted into few parts.
 <br>
 
-`let status_line = "HTTP/1.1 404 NOT FOUND";
+```let status_line = "HTTP/1.1 404 NOT FOUND";
         let contents = fs::read_to_string("404.html").unwrap();
         let length = contents.len();`
 
@@ -26,13 +26,13 @@ So int the code the process of reading the request is furtherly splitted into fe
         );
 
         stream.write_all(response.as_bytes()).unwrap();
-
+```
 Here, for processing the response I used a few if statements. If the request process the root or `/` of the server hence it will direct to the `hello.html`. If they are not accessing the root then they will be directed to a different html namely `404.html`. However, there is a few repetition of if and elses here as they are responsible for reading and writing contents onto the stream, hence why we need to refactor the code to make it more concise.
 
 #### After Refactoring
 
 
-`let (status_line, filename) = if request_line == "GET / HTTP/1.1" {
+```let (status_line, filename) = if request_line == "GET / HTTP/1.1" {
         ("HTTP/1.1 200 OK", "hello.html")
     } else {
         ("HTTP/1.1 404 NOT FOUND", "404.html")
@@ -45,7 +45,7 @@ Here, for processing the response I used a few if statements. If the request pro
         format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
 
     stream.write_all(response.as_bytes()).unwrap();
-
+```
 The code that was previously duplicated has been moved outside of the if and else blocks and utilizes the use of the status_line and filename variables. This makes the differences between the two circumstances easier to understand and suggests that we only need to change one place in the code to change how the file reading and response writing behave. 
 
 ## Simulation of slow request
