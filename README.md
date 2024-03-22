@@ -15,8 +15,8 @@ In a nutshell this function will serve as the server for handling client request
 ![image](https://github.com/Alvinzhafif/advprog-module6/assets/143392835/a82adb24-e247-455d-bf52-5603aeea84ac)
 ![image](https://github.com/Alvinzhafif/advprog-module6/assets/143392835/843e3f15-9009-43a5-9002-9ca1b4b18795)
 So int the code the process of reading the request is furtherly splitted into few parts.
-`
-let status_line = "HTTP/1.1 404 NOT FOUND";
+<br>
+`let status_line = "HTTP/1.1 404 NOT FOUND";
         let contents = fs::read_to_string("404.html").unwrap();
         let length = contents.len();
 
@@ -24,10 +24,11 @@ let status_line = "HTTP/1.1 404 NOT FOUND";
             "{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}"
         );
 
-        stream.write_all(response.as_bytes()).unwrap();
-`
+        stream.write_all(response.as_bytes()).unwrap();`
+
 Here, for processing the response I used a few if statements. If the request process the root or `/` of the server hence it will direct to the `hello.html`. If they are not accessing the root then they will be directed to a different html namely `404.html`. However, there is a few repetition of if and elses here as they are responsible for reading and writing contents onto the stream, hence why we need to refactor the code to make it more concise.
 #### After Refactoring
+
 
 `let (status_line, filename) = if request_line == "GET / HTTP/1.1" {
         ("HTTP/1.1 200 OK", "hello.html")
