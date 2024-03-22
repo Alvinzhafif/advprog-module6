@@ -1,20 +1,21 @@
 ## Handle-connection, check response
-Here I will analyze the function line-by line and explain it's use.
+Here I will analyze the function line-by-line and explain its use.
 *  `fn handle_connection(mut stream: TcpStream) { ... }:`, This function takes a mutable reference to a TcpStream as its argument. This function would be used to handle incoming TCP connection requests.
-*  `let buf_reader = BufReader::new(&mut stream);` here I declared a `BufReader` Object variable named `buf_reader` that wraps the mutable reference to the `TCPstream`. This will be used to read lines from the stream.
+*  `let buf_reader = BufReader::new(&mut stream);` here I declared a `BufReader` Object variable named `buf_reader` that wraps the mutable reference to the `TCP stream`. This will be used to read lines from the stream.
 *  `stream.read(&mut buffer).unwrap();`
-*  `let http_request: Vec<_> = buff_reader` here I declared a vector variable named `http_request` that will process the `http` request using the value from `buff_reader`. Then the `buff_reader` is furtherly processed, first to `.lines()` this will create an iterater over the lines, each iteration would have a `result` with a response of either `ok` or `err` depending on the successful connection or not. Then the `result` is passed on to `.map(|result| result.unwrap())`, this will extract the values of `ok` from the `result`. Next, `.take_while(|line| !line.is_empty())` will be responsible to keep taking the lines until it's false, by that it means to keep taking lines until the end of the `HTTP` request headers. Then `.collects()` will collect the previous result and store it again in the vector variable.
-*  ` println!("Request: {:#?}", http_request);` Finally this will be used for printing out the `HTTP` request vector from before. Using the `:#?` debug format for better clarity.
-In a nutshell this function will serve as the server for handling client requests.
+*  `let http_request: Vec<_> = buff_reader` Here I declared a vector variable named `http_request` that will process the `HTTP` request using the value from `buff_reader`. Then the `buff_reader` is furtherly processed, first to `.lines()` this will create an iterator over the lines, each iteration would have a `result` with a response of either `ok` or `err` depending on the successful connection or not. Then the `result` is passed on to `.map(|result| result.unwrap())`, this will extract the values of `ok` from the `result`. Next, `.take_while(|line| !line.is_empty())` will be responsible to keep taking the lines until it's false, by that it means to keep taking lines until the end of the `HTTP` request headers. Then `.collects()` will collect the previous result and store it again in the vector variable.
+*  ` println!("Request: {:#?}", http_request);` Finally, this will be used for printing out the `HTTP` request vector from before. Using the `:#?` debug format for better clarity.
+<br>
+In a nutshell, this function will serve as the server for handling client requests.
 
 ##  Returning HTML
 ![image](https://github.com/Alvinzhafif/advprog-module6/assets/143392835/2c978af3-ce10-45f3-a9f2-bd4f11ffa213)
 ![image](https://github.com/Alvinzhafif/advprog-module6/assets/143392835/67a3b1b8-aec4-436f-b19a-1f0e8a48468c)
 
-## Validating request and selectively responding
+## Validating requests and selectively responding
 ![image](https://github.com/Alvinzhafif/advprog-module6/assets/143392835/a82adb24-e247-455d-bf52-5603aeea84ac)
 ![image](https://github.com/Alvinzhafif/advprog-module6/assets/143392835/843e3f15-9009-43a5-9002-9ca1b4b18795)
-So int the code the process of reading the request is furtherly splitted into few parts.
+So in the code, the process of reading the request is further split into a few parts.
 <br>
 
 ```
@@ -28,7 +29,7 @@ let status_line = "HTTP/1.1 404 NOT FOUND";
 
         stream.write_all(response.as_bytes()).unwrap();
 ```
-Here, for processing the response I used a few if statements. If the request process the root or `/` of the server hence it will direct to the `hello.html`. If they are not accessing the root then they will be directed to a different html namely `404.html`. However, there is a few repetition of if and elses here as they are responsible for reading and writing contents onto the stream, hence why we need to refactor the code to make it more concise.
+Here, for processing the response I used a few if statements. If the request processes the root or `/` of the server hence it will direct to the `hello.html`. If they are not accessing the root then they will be directed to a different html namely `404.html`. However, there are a few repetitions of if and else here as they are responsible for reading and writing contents onto the stream, hence why we need to refactor the code to make it more concise.
 
 #### After Refactoring
 
