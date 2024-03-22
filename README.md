@@ -51,21 +51,21 @@ The difference between using `/sleep` and `/` normally, is that using `/sleep` s
 ##  Multithreaded server using Threadpool
 
 1. `struct ThreadPool`, This struct represents a thread pool.
-*  `workers: Vec<Worker>` It holds a vector of workers, each responsible for executing tasks.
-*  `sender: Option<mpsc::Sender<Job>>` It stores an optional sender for the channel used to communicate tasks to workers.
-2. `Job Type Alias`, This is a type alias for the type of tasks that can be sent to the workers. It represents a closure that takes no arguments and returns nothing (FnOnce()), can be sent between threads (Send), and lives for the 'static lifetime.
+* {workers: Vec<Worker>} Contains a vector of workers, each in charge of carrying out assignments.
+*  Option<mpsc::Sender<Job>>} as the sender It keeps track of an optional sender for the channel that employees utilize to receive tasks.
+2. `Job Type Alias`, This is a type alias for the type of tasks that can be sent to the workers. It represents a closure that takes no arguments and returns nothing `(FnOnce())`, can be sent between threads `(Send)`, and lives for the `'static` lifetime.
 
 3. `impl ThreadPool`
-*  `new(size: usize) -> ThreadPool`, This is a constructor for creating a new ThreadPool with a specified number of workers (size).
- * It initializes a channel `(mpsc::channel())` to communicate tasks between the main thread and workers.
- * It creates a shared ownership (Arc) of a mutex-protected receiver to distribute among workers.
- * It initializes size number of workers, each with a unique ID and a cloned receiver.
-*  `execute<F>(&self, f: F) where F: FnOnce() + Send + 'static`, This method enqueues a task (FnOnce()) into the thread pool for execution.
+*  `new(size: usize) -> ThreadPool`, This constructor can be used to create a new ThreadPool with a certain size, or a number of workers.
+  It initializes a channel `(mpsc::channel())`, to convey tasks to workers from the main thread.
+  It creates a shared ownership (Arc) of a mutex-protected receiver to distribute among workers.
+  The number of workers is initialized, and each has a cloned receiver and a unique ID.
+  `execute<F>(&self, f: F) where F: FnOnce() + Send + 'static`, This method enqueues a task `(FnOnce())` into the thread pool for execution.
 It wraps the task into a box and sends it through the channel to be picked up by an available worker.
 
-4. Drop implementation for ThreadPool:
+4. `Drop` implementation for ThreadPool:
 *  This implementation ensures graceful shutdown of the thread pool when it goes out of scope.
-*  It drops the sender, signaling to workers that no more tasks will be sent.
+*  Workers are informed that no more tasks will be sent when it drop the sender.
 *  It waits for each worker thread to finish (join) before exiting.
   
 5. struct `Worker`:
@@ -76,9 +76,9 @@ It wraps the task into a box and sends it through the channel to be picked up by
 
 * impl `Worker`:
 
- * new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker: This is a constructor for creating a new Worker.
- * It spawns a new thread that loops indefinitely, receiving and executing tasks from the shared receiver.
- * If an error occurs during receiving (indicating the sender has been dropped), it breaks out of the loop, terminating the worker.
+   `new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker`, This is a constructor for creating a new Worker.
+   It starts a new thread that takes tasks from the shared receiver and runs it endlessly.
+   The worker is terminated if an error occurs during the receiving process, signaling that the sender has been dropped.
 
 
 
